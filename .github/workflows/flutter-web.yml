@@ -19,6 +19,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
+        channel: 'dev'
         flutter-version: '3.23.0-0.1.pre' # Specify the version of Flutter you want to use
 
     - name: Flutter Clean
