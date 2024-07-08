@@ -34,7 +34,7 @@ jobs:
       - name: Create and Push to New Branch
         run: |
           git checkout -b deploy-branch
-          git add build/web
+          git add -f build/web
           git -c user.name='GitHub Actions' -c user.email='actions@github.com' commit -m "Deploying to GitHub Pages"
           git push origin deploy-branch
 
