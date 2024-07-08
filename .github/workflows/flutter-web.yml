@@ -1,46 +1,41 @@
-name: Flutter Web CI/CD
+name: Build & Deploy
 
 on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.13.0'
 
-    - name: Download and Install Flutter
-      run: |
-        curl -LO https://storage.googleapis.com/flutter_infra_release/releases/beta/linux/flutter_linux_3.13.0-beta.1.tar.xz
-        tar xf flutter_linux_3.13.0-beta.1.tar.xz
-        export PATH="$PATH:$PWD/flutter/bin"
-        flutter --version
+      - name: Flutter Clean and Build Web
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build web --web-renderer canvaskit --release
 
-    - name: Flutter Clean
-      run: flutter clean
+      - name: Create and Push to New Branch
+        run: |
+          git checkout -b deploy-branch
+          git add build/web
+          git -c user.name='GitHub Actions' -c user.email='actions@github.com' commit -m "Deploying to GitHub Pages"
+          git push origin deploy-branch
 
-    - name: Flutter Pub Get
-      run: flutter pub get
-
-    - name: Flutter Build Web
-      run: flutter build web --web-renderer canvaskit --release
-
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/master'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.TOKEN }}
-        publish_dir: build/web
+      - name: Set up GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          publish_dir: build/web
+          branch: deploy-branch
+          clean: true
