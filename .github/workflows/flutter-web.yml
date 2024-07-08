@@ -22,7 +22,8 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.3'  # Specify your desired Flutter version that supports your project's requirements
+          channel: 'beta'
+          flutter-version: '3.23.0-0.1.pre'
 
       - name: Flutter Clean and Build Web
         run: |
